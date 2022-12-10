@@ -1,0 +1,345 @@
+{% extends 'main/base.html' %}
+{% block content %}
+{% load static %}
+<head>
+    
+    <!-- Metadata -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="George W. Park">
+    <meta name="description" content="This project demonstrates how CSS grid (with flexbox and float fallback) can be used to re-create the layout of an Instagram profile page.">
+
+    <!-- Title -->
+    <title>Instagram Profile Layout</title>
+
+    <!-- External CSS Files -->
+    <link rel="stylesheet" href="{% static 'assets3/css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'assets3/css/styles.css' %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+</head>
+
+    <header>
+        <br>
+        <br>
+        {% include 'main/alerts.html' %}
+        <br>
+        <br>
+
+        <div class="container">
+
+            <div class="profile">
+                
+                <div class="profile-image">
+
+                    <img src="{{profile.image.url}}" alt="" style="width: 200px; height: 200px;">
+
+                </div>
+
+                <div class="profile-user-settings">
+
+                        {% if profile.first_name %}
+                        <h6 class="profile-user-name">{{profile.first_name}} {{profile.last_name}}</h6> <br>
+                        {% endif %}
+                        <br>
+                        <br>
+                
+                        <br>
+                        <br>
+                        <br>
+                        {% if request.user != profile.user %}
+                            
+                                <div class="row">
+                                    {% if user_allowed  %}
+                                        <div class="col-md-2">
+                                            <button onclick="unfollow()" id="unfollow-btn" class="btn btn-outline-success btn-block " style="font-size: 15px;padding:2px;" >Following</button> <br><br>
+
+                                        </div>
+                                        <script type="text/javascript" >
+
+                                            function unfollow(){
+
+                                                const url="{% url 'follow' profile.user.username %}"
+
+                                                $.ajax({
+                                                    type:"GET",
+                                                    url:url,
+                                                    success:function(res){
+                                                        console.log(res.followed)
+                                                        if(res.followed){
+                                                            $("#unfollow-btn").html("Following")
+                                                        }else{
+                                                            $("#unfollow-btn").html("Follow")
+                                                        }
+                                                    }
+                                                })
+
+
+
+                                            }
+                                        </script>
+                                    {% else %}
+
+
+                                                {% if profile.status == "private" %}
+
+                                                        <div class="col-md-2">
+                                                            <button onclick="send()" id="req" class="btn btn-outline-success btn-block" style="font-size: 15px;padding:5px">
+                                                                {% if status_follow == "requested" %}   
+                                                                    Requested
+                                                                {% else %}
+                                                                    Follow
+                                                                {% endif %}
+                                                            </button> 
+
+                                                            <br><br>
+                
+                                                        </div>
+                
+                                                        <script type="text/javascript" >
+                                                            function send(){
+                                                                const url="{% url 'send_request' profile.user.username %}"
+                                                                $.ajax({
+                                                                    type:"GET",
+                                                                    url:url,
+                                                                    success:function(res){
+                                                                        console.log(res)
+                                                                        if(res.status==="requested"){
+                                                                            $("#req").html("Requested")
+                                                                        }else{
+                                                                            $("#req").html("Follow")
+                                                                        }
+                                                                        
+                                                                    }
+                                                                })
+                                                            }
+                                                        </script>  
+
+                                                {% else %}
+
+                                                    <div class="col-md-2">
+                                                        
+                                                            <button onclick="public_btn()"  id="public-req" class="btn btn-outline-success btn-block" style="font-size: 15px;padding:5px">Follow</button> <br><br>
+
+                                                    </div>
+                                                    <script type="text/javascript" >
+                                                        function public_btn(){
+
+                                                            const url="{% url 'follow' profile.user.username %}"
+
+                                                            $.ajax({
+                                                                type:"GET",
+                                                                url:url,
+                                                                success:function(res){
+                                                                    console.log(res.followed)
+                                                                    if(res.followed){
+                                                                        $("#public-req").html("Following")
+                                                                    }else{
+                                                                        $("#public-req").html("Follow")
+                                                                    }
+                                                                }
+                                                            })
+
+
+
+                                                        }
+                                                    </script>
+
+                                                {% endif %}
+                                                
+
+                                    {% endif %}
+                                </div>
+                            
+                        {% endif %}
+                        <br>
+                        
+                        <h5 style="font-size: 15px;" class="profile-user-name">@{{profile.user.username}}</h5> 
+                    {% if request.user.is_authenticated %}            
+                             {% if request.user == profile.user %}   
+                                <button class="btn profile-edit-btn " style="padding:5px;font-size:15px"><a href="{% url 'edit_profile' profile.user.username %}" style="text-decoration: none;color:black"> Edit Profile</a></button>
+
+                                <a style="text-decoration: none;color:black" href="{% url 'settings' profile.user.username %}" ><button style="padding:10px;font-size:15px" class="btn profile-settings-btn" aria-label="profile settings"><i class="fas fa-cog" aria-hidden="true"></i></button></a>
+                            {% endif %}
+                    {% endif %}
+
+                    <br>
+                    <br>
+                </div>
+
+                <div class="profile-stats">
+
+                    <ul>
+                        <li><span class="profile-stat-count">{{posts.count}}</span> posts</li>
+                        <li><a style="text-decoration: none;color:black" href="{% url 'followers' profile.user.username %}"><span class="profile-stat-count">{{followers.count}}</span> followers</a></li>
+                        <li><a href="{% url 'followings' profile.user.username %}" style="text-decoration: none;color:black"><span class="profile-stat-count">{{followings.count}}</span> following</a></li>
+                    </ul>
+
+                </div>
+
+                <div class="profile-bio">
+
+                        <!-- 
+
+                                PRIVATEEEEEEEEEEEEEEEEEEEE
+
+                                PUBLICCCCCCCCCCCCCCCCCCCCC
+
+
+                         -->
+
+              
+                            
+                         <br>
+                         <br>
+                         <br>
+
+                         {% if request.user.is_authenticated and profile.user == request.user %}
+                            <button onclick="news()" id="status-btn" >click to Private</button>
+                        {% endif %}
+                        <br>
+                        <br>
+                       
+                    <script type="text/javascript" >
+
+                        function news(){
+
+                            const url="{% url 'make_account_private' profile.user.username %}"
+
+                            $.ajax({
+                                type:"GET",
+                                url:url,
+                                success:function(res){
+                                    console.log(res)
+
+                                    if(res.status==="private"){
+                                        $("#status-btn").html("click to Public")
+                                    }else if(res.status==="public"){
+                                        $("#status-btn").html("click to Private")
+                                        
+                                    }
+                                    
+                                }
+                            })
+                            
+
+                        }
+                    </script>
+
+
+                    <br>
+                    {% if profile.bio %}
+                    <p><span class="profile-real-name"></span>◉ {{profile.bio}}</p>
+                    {% endif %}
+                    {% if profile.location %}
+                    <p><span class="profile-real-name"></span>◉ {{profile.location}}</p>
+                    {% endif %}
+                    {% if profile.url %}
+                    <p><span class="profile-real-name"></span>◉ <a href="{{profile.url}}">{{profile.url}}</a></p>
+                    {% endif %}
+                    <br><br>
+                    <div class="profile-user-settings">
+                        {% if request.user.is_authenticated and request.user == profile.user %}
+                        <a  href="{% url 'saved_posts' request.user.username %}"  class="btns profeile-edit-btn">Saved</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            <!-- End of profile section -->
+
+        </div>
+        <!-- End of container -->
+
+    </header>
+    {% if user_allowed or request.user == profile.user %}
+        <main>
+
+            <div class="container">
+
+                <div class="gallery">
+                    
+                        {% for post in post_paginated %}
+                            
+                        
+                                    <a href="{% url 'postDetail' post.id %}">
+                                            <div class="gallery-item" tabindex="0">
+
+                                                <img src="{{ post.picture.url }}" class="gallery-image" alt="" style="width: 500px; height: 300px; object-fit: cover;">
+
+                                                <div class="gallery-item-info">
+
+                                                    <ul>
+                                                        <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i class="fas fa-heart" aria-hidden="true"></i> {{post.likes}}</li>
+                                                        <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i class="fas fa-comment" aria-hidden="true"></i> {{post.comment.count}}</li>
+                                                    </ul>
+
+                                                </div>
+
+                                            </div>
+                                    </a>
+                        
+                    {% endfor %}
+
+                </div>
+                <div class="loader"></div>
+            </div>
+        </main>
+    {% elif profile.status == "private" %}
+    
+    
+        <div class="contaner text-center" >
+            <br>
+            <br>
+            <br>
+            <h1><i style="font-size: 70px;" class="fas fa-lock" ></i></h1>
+            <br>
+            <br>
+            <h1 style="font-size: 25px;">This account is private</h1>
+            <br>
+
+            <h1 style="font-size: 25px;margin-top:2px">Follow to see their photos and videos</h1>
+
+        </div>
+    {% else %}
+
+
+        <main>
+
+            <div class="container">
+
+                <div class="gallery">
+                    
+                        {% for post in post_paginated %}
+                            
+                        
+                                    <a href="{% url 'postDetail' post.id %}">
+                                            <div class="gallery-item" tabindex="0">
+
+                                                <img src="{{ post.picture.url }}" class="gallery-image" alt="" style="width: 500px; height: 300px; object-fit: cover;">
+
+                                                <div class="gallery-item-info">
+
+                                                    <ul>
+                                                        <li class="gallery-item-likes"><span class="visually-hidden">Likes:</span><i class="fas fa-heart" aria-hidden="true"></i> {{post.likes}}</li>
+                                                        <li class="gallery-item-comments"><span class="visually-hidden">Comments:</span><i class="fas fa-comment" aria-hidden="true"></i> {{post.comment.count}}</li>
+                                                    </ul>
+
+                                                </div>
+
+                                            </div>
+                                    </a>
+                        
+                    {% endfor %}
+
+                </div>
+                <div class="loader"></div>
+            </div>
+        </main>
+
+
+
+    {% endif %}
+
+{% endblock content %}
