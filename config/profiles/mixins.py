@@ -32,7 +32,7 @@ class PrivateAccountSeeFollwersAndFollowings:
 
 
 
-class LoginNeed():
+class LoginNeed:
 
     def dispatch(self,request,*args,**kwargs):
 
@@ -44,15 +44,15 @@ class LoginNeed():
 
 
 class EditProfile():
-
+    # pass
     def dispatch(self,request,username,*args,**kwargs):
 
-        profile=get_object_or_404(Profile,user__username=username)
+        profile=get_object_or_404(Profile.objects.select_related("user").prefetch_related("favourite","follwer_requested"),user__username=username)
 
         if self.request.user.is_authenticated:
                 if self.request.user==profile.user:
                     return super().dispatch(request,username,*args,**kwargs)
-                return reverse("myProfile",kwargs={"username":username})
+                return redirect("myProfile",profile.user.username)
         return redirect("custom_login")
     
 

@@ -20,7 +20,7 @@ class Profile(models.Model):
     #     ("rejected","rejected"),
     # )
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE,related_name="profile")
+    user = models.OneToOneField(User, on_delete=models.CASCADE,related_name="profile",null=True)
     image = models.ImageField(upload_to="profile_pciture", null=True, default="default.jpg",validators=[FileExtensionValidator(allowed_extensions=["jpg","png","jpeg"])])
     first_name = models.CharField(max_length=200, null=True, blank=True)
     last_name = models.CharField(max_length=200, null=True, blank=True)

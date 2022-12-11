@@ -5,11 +5,12 @@ from posts.models import Post,Follow
 from .utils import handle_paginator
 from .mixins import LoginNeed,EditProfile,PrivateAccountSeeFollwersAndFollowings
 from .decorators import mixin_to_see_saved_post
-from .forms import ProfileForm
+from .forms import ProfileForm,EditProfile
 from django.views.generic import UpdateView,ListView
 from django.urls import reverse
 from django.http import JsonResponse
-
+from accounts.models import User
+from django.contrib import messages
 
 
 
@@ -34,6 +35,19 @@ class ProfileView(LoginNeed,View):
                 else:
                     user_allowed=False
         print(user_allowed)
+
+
+
+        user_followed_no_private_status=None
+        if profile.status!="private":
+            ff=Follow.objects.filter(follower=self.request.user,following=profile.user,request_status ="empty").exists()
+            if ff:
+                
+                user_followed_no_private_status="Following"
+            else:
+                user_followed_no_private_status="Follow"
+
+                
 
 
 
@@ -80,7 +94,8 @@ class ProfileView(LoginNeed,View):
             'post_paginated':post_result,
             'followed':followed,
             'user_allowed':user_allowed,
-            'status_follow':status_follow
+            'status_follow':status_follow,
+            'user_followed_no_private_status':user_followed_no_private_status
 
         }
 
@@ -103,7 +118,7 @@ def saved_posts(request,username):
 
 
 
-class UpdateProfile(LoginNeed,EditProfile,UpdateView):
+class UpdateProfile(UpdateView):
 
     template_name: str="profiles/editProfile.html"
     model=Profile
@@ -120,6 +135,19 @@ class UpdateProfile(LoginNeed,EditProfile,UpdateView):
     def get_success_url(self) -> str:
         k=self.kwargs.get("username")
         return reverse("myProfile",kwargs={"username":k})
+    
+    def dispatch(self, request, *args, **kwargs) :
+
+        k=self.kwargs.get("username")
+        profile=Profile.objects.select_related("user").prefetch_related("favourite").get(
+            user__username=k
+        )
+        if self.request.user.is_authenticated:
+            if self.request.user==profile.user:
+                return super().dispatch(request, *args, **kwargs)
+            return redirect("myProfile",self.request.user.username)
+        return redirect("custom_login")
+    
 
 
 
@@ -159,8 +187,9 @@ def send_request(request,username):
             follower=request.user,following=profile.user,request_status="requested"
         )  
         if f:
-            f.request_status="empty"
-            f.save()
+            # f.request_status="empty"
+            # f.save()
+            f.delete()
         
             return redirect(request.META.get("HTTP_REFERER"))
         
@@ -255,19 +284,49 @@ class Followings(PrivateAccountSeeFollwersAndFollowings,ListView):
     
 
 
-class Settings(LoginNeed,EditProfile,View):
+class Settings(View):
 
     def get(self,request,username,*args,**kwargs):
 
         profile=get_object_or_404(Profile.objects.select_related("user").prefetch_related("favourite","follwer_requested"),user__username=username)
         contex={
-            'profile':profile
+            'profile':profile,
+            'form':EditProfile(instance=profile)
         }
 
-        return render(request,"profiles/settings.html",contex)        
+        return render(request,"profiles/settings.html",contex)
+
+    def post(self,request,*args,**kwargs):
+
+        # profile=get_object_or_404(Profile.objects.select_related("user").prefetch_related("favourite","follwer_requested"),user__username=username)
+        ProfileF=ProfileForm(self.request.POST,self.request.FILES)
+        # print(ProfileF)
+        if ProfileF.is_valid():
+            pf=ProfileF.save(commit=False)
+            pf.profile=self.request.user
+            ProfileF.save()
+            return redirect(self.request.META.get("HTTP_REFERER"))
+        print(ProfileF.errors)
+        return JsonResponse({"error":"not valid"})
+
+    def dispatch(self, request, *args, **kwargs) :
+
+        k=self.kwargs.get("username")
+        profile=Profile.objects.select_related("user").prefetch_related("favourite").get(
+            user__username=k
+        )
+        if self.request.user.is_authenticated:
+            if self.request.user==profile.user:
+                return super().dispatch(request, *args, **kwargs)
+            return redirect("myProfile",self.request.user.username)
+        return redirect("custom_login")
+
+
+        
 
 
 
+@mixin_to_see_saved_post
 def follow(request,username):
 
     profile_to_follow=get_object_or_404(Profile,user__username=username)
@@ -295,5 +354,31 @@ def follow(request,username):
     
 
 
-    
+
+@mixin_to_see_saved_post
+def change_password(request,username):
+
+    profile=get_object_or_404(Profile.objects.select_related("user").prefetch_related("follwer_requested","favourite"),user__username=username)
+
+    user=get_object_or_404(User,username=profile.user.username)
+    if request.method=="POST":
+
+        current_pass=request.POST.get("current_password")
+        new_password=request.POST.get("new_password")
+        confirm_password=request.POST.get("confirm_password")
+
+
+        if user.check_password(current_pass):
+            if new_password==confirm_password:
+                user.set_password(new_password)
+                user.save()
+                messages.success(request,"New Password Is Set")
+                return redirect(request.META.get("HTTP_REFERER"))
+            messages.error(request,"not match password")
+            return redirect(request.META.get("HTTP_REFERER"))
+        messages.error(request,"current password is not orrect")
+        return redirect(request.META.get("HTTP_REFERER"))
+
+
+
 
