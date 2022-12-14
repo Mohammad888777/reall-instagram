@@ -320,7 +320,7 @@
                                             <img src="assets1/default-user.png" alt="User Picture">
                                         </a>
 
-                                        <span>Liked by <a class="post__name--underline" href="#">user123</a> and <a href="#">{{item.likes}}</a></span>
+                                        <span>Liked by <a class="post__name--underline" href="">{{last_liked.user.username}}</a> and <a href="{% url 'likesView' item.id %}">{{item.likes}}</a></span>
                                     </div>
 
                                     <div class="post__description">

@@ -11,6 +11,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode,urlsafe_base64_encode
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.decorators import login_required
 
 
 
@@ -56,9 +57,12 @@ class LoginView(View):
         return redirect("custom_login")    
 
 
-def logout(request):
+
+
+@login_required(redirect_field_name="custom_login")
+def logoutView(request):
     logout(request)
-    return redirect("")
+    return redirect("custom_login")
 
 
 
@@ -125,3 +129,65 @@ def activate(request,uidb64,token):
         return redirect("custom_register")
 
 
+
+
+def forgotPassword(request):
+
+    if request.method=="POST":
+        email=request.POST.get("email")
+        user=User.objects.filter(email=email)
+        if user.exists():
+            auth=User.objects.select_related("profile").prefetch_related("post_set").get(email__iexact=email)
+
+            subject="reset password "
+            current_site=get_current_site(request)
+            body=render_to_string("accounts/forgotPasswodActivate.html",{
+                "user":auth,
+                "domin":current_site,
+                "uid":urlsafe_base64_encode(force_bytes(auth.id)),
+                "token":default_token_generator.make_token(auth)
+            })
+            mail=EmailMessage(subject=subject,body=body,to=[auth.email])
+            mail.send()
+            messages.success(request,"email is sent to reset your passowrd")
+            return redirect("custom_login")
+        messages.error(request,"user with this email does not exisit")
+        return redirect(request.META.get("HTTP_REFERER"))
+    return render(request,"accounts/forgotPassword.html")
+        
+
+
+def validateEmail(request,uidb64,token):
+
+    try:
+        uid=urlsafe_base64_decode(uidb64).decode()
+        user=User._default_manager.get(id=uid)
+    except User.DoesNotExist:
+        user=None
+    
+    if user is not None and default_token_generator.check_token(user,token):
+        request.session["uid"]=uid
+        return redirect("resetPassowrd")
+    messages.error(request,"link is expired")
+    return redirect("forgotPassword")
+
+
+
+def resetPassowrd(request):
+
+    if request.method=="POST":
+        password=request.POST.get("password")
+        confirm_password=request.POST.get("confirm_password")
+        if password==confirm_password:
+            user_id=request.session.get("uid")
+            user=User.objects.get(id=user_id)
+            if user:
+                user.set_password(password)
+                user.save()
+                messages.success(request,"Your new Password is set")
+                return redirect("custom_login")
+            messages.error(request,"not user found")
+        messages.error(request,"password does not match")
+        return redirect(request.META.get("HTTP_REFERER"))
+    return render(request,"accounts/resetPassword.html")
+    

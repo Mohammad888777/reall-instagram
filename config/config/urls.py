@@ -13,6 +13,7 @@ urlpatterns = [
     path("",include("profiles.urls")),
     path('accounts/', include(tf_urls)),
     path('users/', include("accounts.urls")),
+    path('comments/', include("comments.urls")),
 
 
 ]

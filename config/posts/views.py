@@ -6,6 +6,9 @@ from django.http import HttpResponseRedirect,JsonResponse
 from profiles.models import Profile
 from accounts.models import User
 from django_otp.decorators import otp_required
+from comments.forms import CommentForm
+from comments.models import Comment
+from django.contrib import messages
 
 
 
@@ -83,6 +86,20 @@ def newPost(request):
 def postDetail(request,post_id):
 
     post=get_object_or_404(Post,id=post_id)
+    last_liked=Like.objects.filter(post=post).last()
+    comments=Comment.objects.select_related("user","post").prefetch_related("tags").filter(
+        post=post
+    ).order_by("likes","-created")
+    # c=Comment.objects.get(id=55)
+    # childs=[]
+    # for i in c.children:
+    #     childs.append(i)
+    # print(childs)
+    # tags=[]
+    # if c.tags.all():
+    #     for tag in c.tags.all():
+    #         tags.append(tag)
+    # print(tags)
 
 
     liked=False
@@ -104,7 +121,10 @@ def postDetail(request,post_id):
     contex={
         'post':post,
         'liked':liked,
-        'saved':saved
+        'saved':saved,
+        'commentForm':CommentForm(),
+        'last_liked':last_liked,
+        'comments':comments
     }
     return render(request,"posts/postDetail.html",contex)
 
@@ -167,4 +187,53 @@ def save_post(request,post_id):
         profile.favourite.remove(post)
     
     return JsonResponse({"saved":saved})
+
+
+
+
+
+def likesView(request,post_id):
+
+    post=get_object_or_404(Post,pk=post_id)
+    likes_info=Like.objects.filter(post=post)
+    users=[]
+    for i in likes_info:
+      
+        # if request.user !=i.user:
+            u=User.objects.get(username=i.user.username)
+            users.append(u)
+
+    # profiles=[]
+    # for user in users:
+    #     ps=Profile.objects.get(user=user)
+    #     profiles.append(ps)
+
+    # followed=[]
+    # not_followed=[]
+    # for user in users:
+    #     f=Follow.objects.select_related("follower","following").filter(follower=request.user,following=user)
+    #     if f.exists():
+    #         followed.append(f)
+    #     else:
+    #         not_followed.append(f)
+    
+
+    # print(not_followed,"$$$$$$$$$$$$")
+    # for i in users:
+    #     for j in i.follower.all():
+    #         print(j)
+
+    contex={
+        # 'object_list':profiles,
+        # 'followed':followed,
+        # 'not_followed':not_followed,
+        'users':users
+    }
+ 
+    return render(request,"posts/likesView.html",contex)
+
+
+
+
+
 

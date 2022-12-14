@@ -3,7 +3,6 @@ import uuid
 from django.utils.text import slugify
 from accounts.models import User
 
-
 from django.db.models.signals import post_save, post_delete
 
 
@@ -91,11 +90,22 @@ class Stream(models.Model):
     def add_post(sender, instance, *args, **kwargs):
         post = instance
         user = post.user
-        followers = Follow.objects.all().filter(following=user,request_status="accepted")
+        profile=user.profile
+        followers=None
+        
+        
+       
+        if profile.status=="private":
+            followers = Follow.objects.all().filter(following=user,request_status="accepted")
+
+
+
+        if profile.status=="public":
+            followers = Follow.objects.all().filter(following=user,request_status="empty")
 
         for follower in followers:
-            stream = Stream(post=post, user=follower.follower, date=post.posted, following=user)
-            stream.save()
+            stream = Stream.objects.get_or_create(post=post, user=follower.follower, date=post.posted, following=user)
+    
     
 
     def auto_delete_stream(sender,instance,**kwargs):

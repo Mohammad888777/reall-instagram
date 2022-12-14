@@ -1,0 +1,11 @@
+{% autoescape off %}
+Hi {{user}},
+
+please click on below link to reset your password
+
+http://{{domin}}{% url 'validateEmail' uidb64=uid token=token %}
+
+if thast not you ignore the email
+ 
+
+{% endautoescape  %}

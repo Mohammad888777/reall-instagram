@@ -1,0 +1,201 @@
+{% extends 'main/base.html' %}
+{% block content %}
+{% load static %}
+<head>
+    
+    <!-- Metadata -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="George W. Park">
+    <meta name="description" content="This project demonstrates how CSS grid (with flexbox and float fallback) can be used to re-create the layout of an Instagram profile page.">
+
+    <!-- Title -->
+    <title>Instagram Profile Layout</title>
+
+    <!-- External CSS Files -->
+    <link rel="stylesheet" href="{% static 'assets3/css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'assets3/css/styles.css' %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+</head>
+
+<div class="container">
+    <br>
+<br>
+<br>
+
+
+
+
+
+<br><br>
+<br>
+<br>
+    <div class="side-menu__suggestions-section">
+        <div class="side-menu__suggestions-header">
+            <h2>Suggestions for You</h2>
+            <button>See All</button>
+        </div>
+        <div class="side-menu__suggestions-content">
+            {% for item in users %}
+     
+                {% if item != request.user %}
+                        {% for f in item.following.all %}
+                            
+                                <div class="side-menu__suggestion">
+
+
+                                    <button class="story story--has-story btn-sm">
+                                        <div class="story__avatar">
+                                            <div class="story__border">
+                                                <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+                                                    <circle r="31" cy="32" cx="32"/>
+                                                    <defs>
+                                                        <linearGradient y2="0" x2="1" y1="1" x1="0" id="--story-gradient">
+                                                            <stop offset="0" stop-color="#f09433"/>
+                                                            <stop offset="0.25" stop-color="#e6683c"/>
+                                                            <stop offset="0.5" stop-color="#dc2743"/>
+                                                            <stop offset="0.75" stop-color="#cc2366"/>
+                                                            <stop offset="1" stop-color="#bc1888"/>
+                                                        </linearGradient>
+                                                    </defs>
+                                                </svg>
+                                            </div>
+                                            <div class="story__picture">
+                                                <img src="{{item.profile.image.url}}" alt="User Picture">
+                                            </div>
+                                        </div>
+                                        <!-- <span class="story__user">usernick1</span> -->
+                                    </button>
+
+
+                                    <div class="side-menu__suggestion-info" style="padding: 25px;">
+                                        <a href="{% url 'myProfile' item.username %}">{{item.username}}</a>
+                                        <span>Followed by user1, user2 and 9 others</span>
+                                    </div>
+                                    <div class="side-menu__suggestion-info">
+
+                                        {% if f.following.profile.status == "private" %}
+                                            
+                                                <button class="side-menu__suggestion-button ">
+                                                    <a href="{% url 'follow' f.following.profile.user.username %}" style="text-decoration: none;color:black" >
+                                                        {% if f.follower == request.user and f.request_status == "accepted"  %}
+                                                            Following
+                                                        {% elif f.follower == request.user and f.request_status == "empty"  %}
+                                                            Follow
+                                                        {% elif f.follower == request.user and f.request_status == "rejected"  %}
+                                                            Follow
+                                                        {% elif f.follower == request.user and f.request_status == "requested"  %}
+                                                            Requested
+                                                        {% endif %}
+                                                    </a>
+                                                </button>
+                                        {% elif f.following.profile.status == "public" %}
+
+                                            
+
+                                                <button class="side-menu__suggestion-button ">
+                                                    <a href="{% url 'follow' f.following.profile.user.username %}" style="text-decoration: none;color:black" >
+                                                        {% if f.follower == request.user   %}
+                                                            Following 
+                                                        {% elif f.follower != request.user %}
+                                                            Follow
+                                                        {% endif %}
+                                                    </a>
+                                                    
+                                            </button>
+                                            
+                                        {% endif %}
+
+                                    </div> 
+
+                                </div>
+                        {% endfor %}
+
+                {% elif item == request.user %}
+
+                    <div class="side-menu__suggestion">
+
+
+                            <button class="story story--has-story btn-sm">
+                                <div class="story__avatar">
+                                    <div class="story__border">
+                                        <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+                                            <circle r="31" cy="32" cx="32"/>
+                                            <defs>
+                                                <linearGradient y2="0" x2="1" y1="1" x1="0" id="--story-gradient">
+                                                    <stop offset="0" stop-color="#f09433"/>
+                                                    <stop offset="0.25" stop-color="#e6683c"/>
+                                                    <stop offset="0.5" stop-color="#dc2743"/>
+                                                    <stop offset="0.75" stop-color="#cc2366"/>
+                                                    <stop offset="1" stop-color="#bc1888"/>
+                                                </linearGradient>
+                                            </defs>
+                                        </svg>
+                                    </div>
+                                    <div class="story__picture">
+                                        <img src="{{item.profile.image.url}}" alt="User Picture">
+                                    </div>
+                                </div>
+                                <!-- <span class="story__user">usernick1</span> -->
+                            </button>
+                        
+                        
+                            <div class="side-menu__suggestion-info" style="padding: 25px;">
+                                <a href="{% url 'myProfile' item.username %}">{{item.username}}</a>
+                                <span>Followed by user1, user2 and 9 others</span>
+                            </div>
+                    
+                    
+                    </div>
+
+      
+                {% endif %}
+            {% endfor %}
+        
+        </div>
+    </div>
+
+
+
+
+
+</div>
+
+
+{% for item in users %}
+
+            {% for f in item.following.all %}
+            
+                    {% if f.following.profile.status == "private" %}
+
+                                    {% if f.follower == request.user and f.request_status == "accepted"  %}
+                                    
+                                    <!-- <p>{{f.following.profile.user.username}}</p> -->
+                                        Following
+
+                                    {% elif f.follower == request.user and f.request_status == "empty"  %}
+                                        Follow
+
+                                    {% elif f.follower == request.user and f.request_status == "rejected"  %}
+                                        Follow
+                                    {% endif %}
+
+                    {% elif f.following.profile.status == "public" %}
+
+                            {% if f.follower == request.user   %}
+                                    Following
+                            {% else %}
+                                    Follow
+                            {% endif %}
+
+                    {% endif %}
+
+            {% endfor %}
+{% endfor %}
+
+
+
+
+{% endblock content %}

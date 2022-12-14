@@ -196,7 +196,7 @@
                          <br>
 
                          {% if request.user.is_authenticated and profile.user == request.user %}
-                            <button onclick="news()" id="status-btn" >click to Private</button>
+                            <button onclick="news()" id="status-btn" >click to {{profile_stat}}</button>
                         {% endif %}
                         <br>
                         <br>
