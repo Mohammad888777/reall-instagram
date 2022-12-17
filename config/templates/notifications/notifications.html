@@ -1,0 +1,334 @@
+{% extends 'main/base.html' %}
+{% block content %}
+{% load static %}
+<head>
+    
+    <!-- Metadata -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="author" content="George W. Park">
+    <meta name="description" content="This project demonstrates how CSS grid (with flexbox and float fallback) can be used to re-create the layout of an Instagram profile page.">
+
+    <!-- Title -->
+    <title>Instagram Profile Layout</title>
+
+    <!-- External CSS Files -->
+    <link rel="stylesheet" href="{% static 'assets3/css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'assets3/css/styles.css' %}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+</head>
+
+{% if profile_status == "public" %}
+
+<div class="container">
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+    <div class="side-menu__suggestions-section">
+        <div class="side-menu__suggestions-header">
+            <h2>Suggestions for You</h2>
+            <button>See All</button>
+        </div>
+        <div class="side-menu__suggestions-content">
+            {% for item in object_list %}
+
+                <div class="side-menu__suggestion">
+                    <button class="story story--has-story btn-sm">
+                        <div class="story__avatar">
+                            <div class="story__border">
+                                <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+                                    <circle r="31" cy="32" cx="32"/>
+                                    <defs>
+                                        <linearGradient y2="0" x2="1" y1="1" x1="0" id="--story-gradient">
+                                            <stop offset="0" stop-color="#f09433"/>
+                                            <stop offset="0.25" stop-color="#e6683c"/>
+                                            <stop offset="0.5" stop-color="#dc2743"/>
+                                            <stop offset="0.75" stop-color="#cc2366"/>
+                                            <stop offset="1" stop-color="#bc1888"/>
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                            <div class="story__picture">
+                                <img src="{{item.sender.profile.image.url}}" alt="User Picture">
+                            </div>
+                        </div>
+                        <!-- <span class="story__user">usernick1</span> -->
+                    </button>
+                    <div class="side-menu__suggestion-info" style="padding: 25px;">
+
+                        <p style="color:black;font-size:14px"  >
+
+                            <a href="{% url 'myProfile' item.sender.username %}" style="text-decoration: none;">{{item.sender.username}}</a>
+
+                            {% if item.notification_types == 1 %}
+
+                                <span style="margin-left: 35px;color:black;font-size:14px">liked your post <span style="padding: 10px;" ></span>     {{item.date|timesince}}</span>
+
+                            {% elif item.notification_types == 2 %}
+
+                                <span style="margin-left: 35px;color:black;font-size:14px">comment on your post  <span style="padding: 10px;" ></span>     {{item.date|timesince}}</span></span>
+
+                            {% elif item.notification_types == 3 %}
+
+                                    <span style="margin-left: 35px;color:black;font-size:14px">started following you <span style="padding: 10px;" ></span>     {{item.date|timesince}}</span></span>
+
+                            {% elif item.notification_types == 5 %}
+
+                                    <span style="margin-left: 35px;color:black;font-size:14px"> replay on your comment <span style="padding: 10px;" ></span>     {{item.date|timesince}}</span></span>
+
+                            {% elif item.notification_types == 6 %}
+
+                                    <span style="margin-left: 35px;color:black;font-size:14px"> liked  your comment <span style="padding: 10px;" ></span>     {{item.date|timesince}}</span></span>
+
+                            {% endif %}
+                        </p>
+
+                        
+                    </div>
+                    
+                        <div class="side-menu__suggestion-info">
+                            <button class="side-menu__suggestion-button ">
+                                {% if item.notification_types == 1 %}
+                                    <a href="{% url 'postDetail' item.post.id %}" style="text-decoration: none;color:black" >
+                                        <img src="{{item.post.picture.url}}" height="50" width="50" alt="">
+                                    </a>
+                                {% elif item.notification_types == 2 %}
+                                    <a href="{% url 'postDetail' item.post.id %}" style="text-decoration: none;color:black" >
+                                        <img src="{{item.post.picture.url}}" height="50" width="50" alt="">
+                                    </a>
+                                {% elif item.notification_types == 3 %}
+                                    <button style="padding: 12px;font-size:12px"  class="btn btn-primary">follow</button>
+                                {% elif item.notification_types == 5 %}
+                                    <a href="{% url 'postDetail' item.post.id %}" style="text-decoration: none;color:black" >
+                                        <img src="{{item.post.picture.url}}" height="50" width="50" alt="">
+                                    </a>
+                                
+                                {% elif item.notification_types == 6 %}
+
+                                    <a href="{% url 'postDetail' item.post.id %}" style="text-decoration: none;color:black" >
+                                        <img src="{{item.post.picture.url}}" height="50" width="50" alt="">
+                                    </a>
+                                
+                                {% endif %}
+                            </button>
+                        </div> 
+                    
+
+                </div> 
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+
+{% elif profile_status == "private" %}
+
+
+
+<div class="container">
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+        <div class="side-menu__suggestions-section">
+            <div class="side-menu__suggestions-header">
+                <h2>Suggestions for You</h2>
+                <button>See All</button>
+            </div>
+            <div class="side-menu__suggestions-content">
+                {% for item in object_list %}
+    
+                    <div class="side-menu__suggestion">
+                        <button class="story story--has-story btn-sm">
+                            <div class="story__avatar">
+                                <div class="story__border">
+                                    <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+                                        <circle r="31" cy="32" cx="32"/>
+                                        <defs>
+                                            <linearGradient y2="0" x2="1" y1="1" x1="0" id="--story-gradient">
+                                                <stop offset="0" stop-color="#f09433"/>
+                                                <stop offset="0.25" stop-color="#e6683c"/>
+                                                <stop offset="0.5" stop-color="#dc2743"/>
+                                                <stop offset="0.75" stop-color="#cc2366"/>
+                                                <stop offset="1" stop-color="#bc1888"/>
+                                            </linearGradient>
+                                        </defs>
+                                    </svg>
+                                </div>
+                                <div class="story__picture">
+                                    <img src="{{item.sender.profile.image.url}}" alt="User Picture">
+                                </div>
+                            </div>
+                            <!-- <span class="story__user">usernick1</span> -->
+                        </button>
+                        <div class="side-menu__suggestion-info" style="padding: 25px;">
+    
+                            <p style="color:black;font-size:14px"  >
+    
+                            <a href="{% url 'myProfile' item.sender.username %}" style="text-decoration: none;">{{item.sender.username}}</a>
+    
+                            {% if item.notification_types == 1 %}
+
+                                <span style="margin-left: 35px;color:black;font-size:14px">liked your post <span style="padding: 10px;" ></span>     {{item.date|timesince}}</span>
+
+                            {% elif item.notification_types == 2 %}
+
+                                <span style="margin-left: 35px;color:black;font-size:14px">comment on your post  <span style="padding: 10px;" ></span>     {{item.date|timesince}}</span></span>
+
+                            {% elif item.notification_types == 3 %}
+
+                                    <span style="margin-left: 35px;color:black;font-size:14px">started following you <span style="padding: 10px;" ></span>     {{item.date|timesince}}</span></span>
+
+                            {% elif item.notification_types == 5 %}
+
+                                    <span style="margin-left: 35px;color:black;font-size:14px"> replay on your comment <span style="padding: 10px;" ></span>     {{item.date|timesince}}</span></span>
+
+                            {% elif item.notification_types == 6 %}
+
+                                    <span style="margin-left: 35px;color:black;font-size:14px"> liked your comment <span style="padding: 10px;" ></span>     {{item.date|timesince}}</span></span>
+
+                            {% endif %}
+                            </p>
+    
+                            
+                        </div>
+                        
+                            <div class="side-menu__suggestion-info">
+                                <button class="side-menu__suggestion-button ">
+                                    {% if item.notification_types == 1 %}
+                                        <a href="{% url 'postDetail' item.post.id %}" style="text-decoration: none;color:black" >
+                                            <img src="{{item.post.picture.url}}" height="50" width="50" alt="">
+                                        </a>
+                                    {% elif item.notification_types == 2 %}
+                                        <a href="{% url 'postDetail' item.post.id %}" style="text-decoration: none;color:black" >
+                                            <img src="{{item.post.picture.url}}" height="50" width="50" alt="">
+                                        </a>
+                                    {% elif item.notification_types == 3 %}
+                                        <button style="padding: 12px;font-size:12px"  class="btn btn-primary">follow</button>
+                                        
+                                    {% elif item.notification_types == 5 %}
+                                        <a href="{% url 'postDetail' item.post.id %}" style="text-decoration: none;color:black" >
+                                            <img src="{{item.post.picture.url}}" height="50" width="50" alt="">
+                                        </a>
+                                    {% elif item.notification_types == 6 %}
+                                    <a href="{% url 'postDetail' item.post.id %}" style="text-decoration: none;color:black" >
+                                        <img src="{{item.post.picture.url}}" height="50" width="50" alt="">
+                                    </a>
+                                    {% endif %}
+                                </button>
+                            </div> 
+                        
+    
+                    </div> 
+                {% endfor %}
+            </div>
+        </div>
+</div>
+
+{% endif %}
+
+
+{% for i in object_list %}
+    <p>{{i.notification_types}}</p>
+{% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %}
+{% for item in users %}
+
+            {% for f in item.following.all %}
+            
+                    {% if f.following.profile.status == "private" %}
+
+                                    {% if f.follower == request.user and f.request_status == "accepted"  %}
+                                    
+                                    <!-- <p>{{f.following.profile.user.username}}</p> -->
+                                        Following
+
+                                    {% elif f.follower == request.user and f.request_status == "empty"  %}
+                                        Follow
+
+                                    {% elif f.follower == request.user and f.request_status == "rejected"  %}
+                                        Follow
+                                    {% endif %}
+
+                    {% elif f.following.profile.status == "public" %}
+
+                            {% if f.follower == request.user   %}
+                                    Following
+                            {% else %}
+                                    Follow
+                            {% endif %}
+
+                    {% endif %}
+
+            {% endfor %}
+{% endfor %}
+
+
+{% endcomment %}
+
+
+
+
+{% endblock content %}

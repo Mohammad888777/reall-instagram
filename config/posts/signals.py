@@ -4,22 +4,32 @@ from accounts.models import User
 from notifications.models import Notification
 
 def send_notification_like(sender,instance,created,**kwargs):
+
+
     post=instance.post
     user=instance.user
-    Notification.objects.create(
-        post=post,sender=user,receiver=post.user,notification_types=1
-    )
+
+    if instance.user != instance.post.user:
+        Notification.objects.create(
+            post=post,sender=user,receiver=post.user,notification_types=1
+        )
+
+
+
+
+
+
 
 
 def delete_notification_unlike(sender,instance,**kwargs):
 
     post=instance.post
     user=instance.user
-    noti=Notification.objects.get(
+    if instance.user != instance.post.user:
+        noti=Notification.objects.filter(
         sender=user,receiver=post.user,notification_types=1,post=post
-    )
-
-    noti.delete()
+        )
+        noti.delete()
 
 
 
@@ -27,11 +37,13 @@ def send_notification_follow(sender,instance,created,**kwargs):
 
     user=instance.follower
     receiver=instance.following
-    noti=Notification(
+    if created:
+        noti=Notification(
         sender=user,receiver=receiver,notification_types=3
-    )
-    noti.save()
+        )
+        noti.save()
     
+
 
 def delete_notification_unfollow(sender,instance,**kwargs):
 
@@ -46,10 +58,10 @@ def delete_notification_unfollow(sender,instance,**kwargs):
 
 
 
-# post_save.connect(send_notification_like,sender=Like)
-# post_delete.connect(delete_notification_unlike,sender=Like)
+post_save.connect(send_notification_like,sender=Like)
+post_delete.connect(delete_notification_unlike,sender=Like)
 
 
 
-# post_save.connect(send_notification_follow,sender=Follow)
-# post_delete.connect(delete_notification_unfollow,sender=Follow)
+post_save.connect(send_notification_follow,sender=Follow)
+post_delete.connect(delete_notification_unfollow,sender=Follow)

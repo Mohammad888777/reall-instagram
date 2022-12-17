@@ -172,8 +172,8 @@
 
                     <ul>
                         <li><span class="profile-stat-count">{{posts.count}}</span> posts</li>
-                        <li><a style="text-decoration: none;color:black" href="{% url 'followers' profile.user.username %}"><span class="profile-stat-count">{{followers.count}}</span> followers</a></li>
-                        <li><a href="{% url 'followings' profile.user.username %}" style="text-decoration: none;color:black"><span class="profile-stat-count">{{followings.count}}</span> following</a></li>
+                        <li><a style="text-decoration: none;color:black" href="{% url 'followers' profile.user.username %}"><span class="profile-stat-count"> {% if followers %} {{followers.count}} {% else %}0 {% endif %}</span> followers</a></li>
+                        <li><a href="{% url 'followings' profile.user.username %}" style="text-decoration: none;color:black"><span class="profile-stat-count">{% if followings %} {{followings.count}} {% else %}0{% endif %}</span> following</a></li>
                     </ul>
 
                 </div>

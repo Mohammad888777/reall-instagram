@@ -9,7 +9,9 @@ from django_otp.decorators import otp_required
 from comments.forms import CommentForm
 from comments.models import Comment
 from django.contrib import messages
-
+from comments.models import Comment
+from comments.forms import CommentForm
+from django.db.models import Q,Count
 
 
 
@@ -46,10 +48,27 @@ def index(request):
     for post in profile.favourite.all():
         saved_post.append(post)
     
+    commentIsLiked=[]
+    for post in post_items:
+        for com in post.comment_set.all():
+            for like in com.comment_likes.all():
+                if like.user==request.user:
+                    commentIsLiked.append(com)
+
+    
+
+    # all_comments=[]
+    # for post in post_items:
+    #     for comment in post.comment_set.all():
+
+    
     contex={
+        
         'post_items':post_items,
         'liked_post':liked_post,
-        'saved_post':saved_post
+        'saved_post':saved_post,
+        'commentForm':CommentForm,
+        'commentIsLiked':commentIsLiked
 
     }
 
@@ -87,9 +106,12 @@ def postDetail(request,post_id):
 
     post=get_object_or_404(Post,id=post_id)
     last_liked=Like.objects.filter(post=post).last()
-    comments=Comment.objects.select_related("user","post").prefetch_related("tags").filter(
+    comments=Comment.objects.select_related("user","post").prefetch_related("tags"
+    
+    ) .filter(
         post=post
     ).order_by("likes","-created")
+
     # c=Comment.objects.get(id=55)
     # childs=[]
     # for i in c.children:
@@ -100,6 +122,26 @@ def postDetail(request,post_id):
     #     for tag in c.tags.all():
     #         tags.append(tag)
     # print(tags)
+
+    likedComment=[]
+    all_comments=Comment.objects.select_related("user","post").prefetch_related("tags").filter(
+        post=post
+    ).order_by("likes","-created")
+    for c in all_comments:
+        for j in c.comment_likes.all():
+            if j.user==request.user:
+                likedComment.append(c)
+    
+    # for i in likedComment:
+    #     if i in all_comments:
+    #         print(i,"IIIIIIIIIIIII")
+    # print(likedComment,"LIKEDDDD COMMENT")
+    # print(all_comments,"ALL COMME")
+
+    
+
+
+
 
 
     liked=False
@@ -119,12 +161,14 @@ def postDetail(request,post_id):
 
 
     contex={
+        
         'post':post,
         'liked':liked,
         'saved':saved,
         'commentForm':CommentForm(),
         'last_liked':last_liked,
-        'comments':comments
+        'comments':comments,
+        'likedComment':likedComment
     }
     return render(request,"posts/postDetail.html",contex)
 
@@ -160,11 +204,12 @@ def like(request,post_id):
         l2=Like.objects.get(user=request.user,post=post)
         l2.delete()
         current_like-=1
+
     post.likes=current_like
     post.save()
     # return HttpResponseRedirect(f"/post/{post.id}")
 
-    return JsonResponse({"like":l})
+    return JsonResponse({"like":l,'current_like':current_like})
 
 
 @login_need

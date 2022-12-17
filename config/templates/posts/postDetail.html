@@ -1,6 +1,7 @@
 {% extends 'main/base.html' %}
 {% block content %}
 {% load static %}
+{% load widget_tweaks %}
 {% load crispy_forms_tags %}
 <head>
 
@@ -80,6 +81,9 @@
                                 function main(){
 
                                     $("#click-like").on("click",function(){
+
+                                        const like_numbers=$("#post-like-numbers")
+
                                         const url="{% url 'like_post' post.id %}"
 
                                         "{% if request.user.is_authenticated %}"
@@ -96,6 +100,9 @@
                                                     </svg>
                                                     `
                                                 )
+
+                                                like_numbers.html(`${res.current_like}`)
+
                                                 }else{
                                                     $('#click-like').children().html(
                                                     `
@@ -104,6 +111,9 @@
                                                     </svg>
                                                     `
                                                 )
+
+                                                like_numbers.html(`${res.current_like}`)
+
                                                 }
                                             }
                                         })
@@ -138,6 +148,7 @@
                                                     </svg>
                                                     `
                                                 )
+
                                                 }
                                             }
                                         })
@@ -155,11 +166,24 @@
 
 
 
-                            <button class="post__button">
+                            <button onclick="showComments()" id="show-comments"  class="post__button">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M21.2959 20.8165L20.2351 16.8602C20.1743 16.6385 20.2047 16.3994 20.309 16.1907C21.2351 14.3342 21.5438 12.117 20.9742 9.80402C20.2003 6.67374 17.757 4.16081 14.6354 3.33042C13.7833 3.10869 12.9442 3 12.1312 3C6.29665 3 1.74035 8.47365 3.31418 14.5647C4.04458 17.3819 7.05314 20.2992 9.88344 20.9861C10.6486 21.173 11.4008 21.26 12.1312 21.26C13.7006 21.26 15.1701 20.8557 16.4614 20.1601C16.6049 20.0818 16.7657 20.0383 16.9222 20.0383C17.0005 20.0383 17.0787 20.047 17.157 20.0688L21.009 21.0991C21.0307 21.1035 21.0525 21.1078 21.0699 21.1078C21.2177 21.1078 21.3351 20.9687 21.2959 20.8165ZM19.0178 17.1863L19.6178 19.4253L17.4831 18.8558C17.3005 18.8079 17.1135 18.7819 16.9222 18.7819C16.557 18.7819 16.1875 18.8775 15.8571 19.0558C14.6963 19.6818 13.4441 19.9992 12.1312 19.9992C11.4834 19.9992 10.8269 19.9166 10.1791 19.7601C7.78354 19.1775 5.14453 16.6037 4.53586 14.2473C3.90111 11.7865 4.40109 9.26057 5.90536 7.31719C7.40964 5.3738 9.6791 4.26081 12.1312 4.26081C12.8529 4.26081 13.5876 4.35646 14.3137 4.5521C16.9961 5.26511 19.0786 7.39544 19.7525 10.1084C20.2264 12.0213 20.0308 13.9299 19.183 15.6298C18.9395 16.1168 18.8787 16.6689 19.0178 17.1863Z" fill="var(--text-dark)" stroke="var(--text-dark)" stroke-width="0.7"/>
                                 </svg>
                             </button>
+
+                            <script type="text/javascript" >
+                                 function showComments (){
+                                    $(`#all-comments`).fadeToggle(500)
+
+                                 }
+
+                            </script>
+
+
+
+
+                            
                             <button class="post__button">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd" d="M22.8555 3.44542C22.6978 3.16703 22.3962 3 22.0714 3L2.91369 3.01392C2.52859 3.01392 2.19453 3.25055 2.05997 3.60781C1.96254 3.86764 1.98574 4.14603 2.11565 4.37338C2.16669 4.45689 2.23165 4.53577 2.31052 4.60537L9.69243 10.9712L11.4927 20.5338C11.5623 20.9096 11.8499 21.188 12.2304 21.2483C12.6062 21.3086 12.9774 21.1323 13.1723 20.8029L22.8509 4.35018C23.0179 4.06715 23.0179 3.72381 22.8555 3.44542ZM4.21748 4.39194H19.8164L10.4255 9.75089L4.21748 4.39194ZM12.6248 18.9841L11.1122 10.948L20.5171 5.58436L12.6248 18.9841Z" fill="var(--text-dark)" stroke="var(--text-dark)" stroke-width="0.3"/>
@@ -224,7 +248,11 @@
                                     <img src="{% static 'assets1/default-user.png' %}" alt="User Picture">
                                 </a>
 
-                                <span>Liked by <a class="post__name--underline" {% if lsat_liked %} href="{% url 'myProfile' last_liked.user.username %}" {% endif %}>{{last_liked.user.username}}</a> and <a href="{% url 'likesView' post.id %}">{{post.likes}} others</a></span>
+                                <span>Liked by <a class="post__name--underline" {% if lsat_liked %} href="{% url 'myProfile' last_liked.user.username %}" {% endif %}>{{last_liked.user.username}}</a> and 
+                                    <a href="{% url 'likesView' post.id %}"  >
+                                        <span id="post-like-numbers">{{post.likes}} </span>others
+                                    </a>
+                                </span>
                             </div>
 
                             <div class="post__description">
@@ -247,7 +275,7 @@
 
 
 
-                            <div class="container mt-1">
+                            <div class="container mt-1" id="all-comments" >
                                 <div class="d-flex justify-content-right row">
                                     <div class="col-md-8 col-lg-8">
                                         <div class="d-flex flex-column comment-section" id="to-add-comment">
@@ -267,14 +295,18 @@
                                                     
                                                 </div>
                                             </form>
+
                                             <script type="text/javascript" >
+                                                let catchId;
+
                                                  function aa(){
                                                     $("#comment-form").on("submit",function(e){
                                                         e.preventDefault()
                                                         const url="{% url 'addComment' post.id %}"
                                                         const f=new FormData(this)
                                                         const toAppendDiv=$("#to-add-comment")
-                                                        
+                                                        console.log("THISSSSSIISIS",this[1].value)
+                                                        const inp=this[1]
                                                         $.ajax({
                                                             type:"POST",
                                                             url:url,
@@ -284,8 +316,12 @@
                                                             processData:false,
 
                                                             success:function(res){
+                                                                //console.log("Okayyyyyy onessss",res[0].comment)
+                                                                
                                                                     
                                                                     if(res[0].is_parent){
+
+                                                                        
 
                                                                             let eachCommentProfile=`http://127.0.0.1:8000/${res[0].username}`
                                                                             const img=res[0].profileImg
@@ -316,30 +352,44 @@
                                                                                     }
                                                                                     <br>
                                                                                     <button class="btn btn" onclick="commentFormToggle('${res[0].id}')" >replay</button>
+
+                                                                                    <button onclick="likeComment(${res[0].id})" id="comment-like-${res[0].id}" class="btn btn- btn-sm shadow-none" style="margin-left: 5px;padding:3px" type="submit">  
+                                                                                        <i class="fa fa-heart" style="font-size: 12px; {% if comment in likedComment %} color:red; {% else %} color:black {% endif %} " id="comment-like-icon-${res[0].id}"></i>  
+                                                                                    </button>
+
                                                                                 </div>
                                                                             </div>
 
                                                                             <div class="d-none" id="${res[0].id}" style="margin-left: 20px;">
-                                                                                <form  enctype="multipart/form-data"   method="POST" id="replay-${res[0].id}" >
-                                                                                    {% csrf_token %}
+                                                                                
                                                                                     <div class="bg-light p-2">
                                                                                         
                                                                                         <br>
                                                                                         <div class="d-flex flex-row align-items-start">
                                                                                             <img class="rounded-circle" src="${img}" style="margin-right: 5px;" width="30" height="30">
-                                                                                            {{commentForm.body}}
+
+                                                                                            <input type="text" name="body" class="okay-${res[0].id}" />
+
                                                                                             <div class="d-flex flex-row align-items-start">
-                                                                                                <button onclick="replayComment('${res[0].id}')" class="btn btn-outline-primary btn-block btn-sm shadow-none" style="margin-left: 5px;padding:3px" type="submit"> replay  </button>
+
+                                                                                                <button onclick="replayComment(${res[0].id})"  class="btn btn-outline-primary btn-block btn-sm shadow-none" style="margin-left: 5px;padding:3px" type="submit"> 
+                                                                                                    replay <span onclick="clickToSee(${res[0].id})" id="comment-replay-numbers-${res[0].id}" >${res[0].child_number}</span> 
+                                                                                                </button>
+
+                                                                                                
+                                                                                                
+
                                                                                             </div>
                                                                                         </div>
                                                                                         <br>
                                                                                         
                                                                                     </div>
-                                                                                </form>
+                                                                                
                                                                             </div>
+
                                                                             ${ res[0].childrens ? 
 
-                                                                                    `<div id="special-${res[0].id}" >
+                                                                                    `<div id="special-${res[0].id}"  >
 
                                                                                     </div>`
 
@@ -348,9 +398,9 @@
                                                                             `
 
                                                                         toAppendDiv.append(newComment)
+                                                                        inp.value=""
                                                                         
                                                                         
-                                                                        $("#id_body").val('')
                                                                     }
                                                             }
 
@@ -361,63 +411,94 @@
                                                  }
                                                  aa()
 
+                                                 function clickToSee(id){
+
+                                                    $(`#special-${id}`).fadeToggle(1000)
+
+                                                 }
+                                                 
 
 
 
-                                                 function replayComment(formId){    
-                                                    console.log("okayyyyyyyyyyyy",formId)
+                                                 function replayComment(formId){
+
+                                                        console.log("okayyyyyyyyyyyy",formId)
                                                         
-                                                    $(`replay-${formId}`).on("submit",function(e){
-                                                        e.preventDefault()
+                                                    
+                                                        //e.preventDefault()
                                                         const url=`http://127.0.0.1:8000/comments/replayComment/{{post.id}}/${formId}/`
-                                                        const f=new FormData(this)
-                                                        $.ajax({
-                                                            type:"POST",
-                                                            data:f,
-                                                            contentType: false,
-                                                            cache: false,
-                                                            processData:false,
-                                                            success:function(res){
+                                                        //const a=$(`replay-${formId}`)
+                                                        //console.log(url)
 
-                                                                let eachCommentProfile=`http://127.0.0.1:8000/${res[0].username}`
-                                                                const img=res[0].profileImg
-                                                                const body=res[0].body
-                                                                const tobeAdded=$(`#special-${formId}`)
+                                                        const f=new FormData()
+                                                        const a=$(`.okay-${formId}`).val()
+                                                        f.append('csrfmiddlewaretoken', $('input[name=csrfmiddlewaretoken]').val())
 
-                                                                const newReplay=`
+                                                        f.append("body",a)
+                                                        console.log(a)
+                                                        console.log(f)
+
+                                                        
 
 
-                                                                <div class="bg-white p-2" style="margin-left: 40px;">
-                                                                    <br>
-                                                                    <br>
-                                                                    <div class="d-flex flex-row user-info">
-                                                                        <img class="rounded-circle" src="${img}" width="30" height="30">
-                                                                        <a href="${eachCommentProfile}" style="text-decoration: none;">
-                                                                            <div style="margin-left: 5px;" class="d-flex flex-column justify-content-start ml-2">
-                                                                                <span class="d-block font-weight-bold name">${res[0].username}</span><span class="date text-black-50"> {{comment.created}}</span>
-                                                                            </div>
-                                                                        </a>
-                                                                    </div>
-                                                                    <div class="mt-2">
-                                                                        <p class="comment-text" style="margin-left: 20px;"> ${res[0].body}</p>
+                                                        const replay_comment_numbers=$(`#comment-replay-numbers-${formId}`)
+
+                                                        if(a){
+                                                            $.ajax({
+                                                                type:"POST",
+                                                                data:f,
+                                                                url:url,
+                                                                contentType: false,
+                                                                cache: false,
+                                                                processData:false,
+                                                                success:function(res){
+                                                                    console.log("SUCCCCCESSSSFUUULLYYY")
+                                                            
+                                                                    let eachCommentProfile=`http://127.0.0.1:8000/${res[0].username}/`
+                                                                    const img=res[0].profileImg
+                                                                    const body=res[0].body
+                                                                    const tobeAdded=$(`#inner-${formId}`)
+                                                            
+                                                                    const newReplay=`
+                                                            
+                                                            
+                                                                    <div class="bg-white p-2" style="margin-left: 40px;">
                                                                         <br>
-                                                                        ${
-                                                                            res[0].tags ? 
-                                                                                res[0].tags.map(tag=>{
-                                                                                    `<a href="" >${tag.title}</a>`
-                                                                                })
-                                                                            :''
-                                                                        }
                                                                         <br>
-                                                                        
+                                                                        <div class="d-flex flex-row user-info">
+                                                                            <img class="rounded-circle" src="${img}" width="30" height="30">
+                                                                            <a href="${eachCommentProfile}" style="text-decoration: none;">
+                                                                                <div style="margin-left: 5px;" class="d-flex flex-column justify-content-start ml-2">
+                                                                                    <span class="d-block font-weight-bold name">${res[0].username}</span><span class="date text-black-50"> {{comment.created}}</span>
+                                                                                </div>
+                                                                            </a>
+                                                                        </div>
+                                                                        <div class="mt-2">
+                                                                            <p class="comment-text" style="margin-left: 20px;"> ${res[0].body}</p>
+                                                                            <br>
+                                                                            ${
+                                                                                res[0].tags ? 
+                                                                                    res[0].tags.map(tag=>{
+                                                                                        `<a href="" >${tag.title}</a>`
+                                                                                    })
+                                                                                :''
+                                                                            }
+                                                                            
+                                                                            
+                                                                        </div>
                                                                     </div>
-                                                                </div>
+                                                            
+                                                                    `
+                                                                    tobeAdded.append(newReplay)
+                                                                    $(`.okay-${formId}`).val('')
+                                                                    replay_comment_numbers.html(`${res[0].child_number}`)
+                                                                }
+                                                            })
+                                                        }
 
-                                                                `
-                                                                tobeAdded.prepend(newReplay)
-                                                            }
-                                                        })
-                                                    })
+                                                        
+
+                                                    
 
                                                  }
                                                  
@@ -427,8 +508,8 @@
                                             </script>
                                             
                                             {% for comment in comments %}
-                                                
-                                                    <div class="bg-white p-2">
+                                                {% if comment.is_parent %}
+                                                    <div class="bg-white p-2" >
                                                         <br>
                                                         <br>
                                                         <div class="d-flex flex-row user-info"><img class="rounded-circle" src="{{comment.user.profile.image.url}}" width="30" height="30">
@@ -443,56 +524,98 @@
                                                             <br>
                                                         
                                                             <br>
-                                                            <button class="btn btn" onclick="commentFormToggle('{{comment.id}}')" >replay</button>
+                                                            <button class="btn btn" onclick="commentFormToggle('{{comment.id}}')" >
+                                                                replay <span id="comment-replay-numbers-{{comment.id}}" >{{comment.children.count}}</span> 
+                                                            </button>
+                                                            
+                                                        
+                                                                <button onclick="likeComment({{comment.id}})" id="comment-like-{{comment.id}}" class="btn btn- btn-sm shadow-none" style="margin-left: 5px;padding:3px" type="submit">  
+                                                                    <i class="fa fa-heart" style="font-size: 10px; {% if comment in likedComment %} color:red; {% else %} color:black {% endif %} " id="comment-like-icon-{{comment.id}}"><span> {{comment.likes}}</span></i>  
+                                                                </button>
+
+                                                                <script type="text/javascript" >
+
+                                                                    function likeComment(commentId){
+
+                                                                        const likeBtn=$(`#comment-like-icon-${commentId}`)
+
+                                                                        const url=`http://127.0.0.1:8000/comments/likeComment/{{post.id}}/${commentId}/`
+                                                                        $.ajax({
+                                                                            type:"GET",
+                                                                            url:url,
+                                                                            success:function(res){
+                                                                                console.log(res)
+                                                                                if(res.commentLike){
+                                                                                    likeBtn.css("color","black")
+                                                                                    likeBtn.html(" "+res.likesNumbers)
+                                                                                }else{
+                                                                                    
+                                                                                    likeBtn.css("color","red")
+                                                                                    likeBtn.html(" "+res.likesNumbers)
+
+                                                                                }
+
+
+                                                                                
+
+
+                                                                            }
+                                                                        })
+
+                                                                    }
+
+                                                                </script>
+                                                          
+
                                                         </div>
                                                     </div>
 
-                                                    {% for child in comment.children %}
-                                                        <div class="bg-white p-2" style="margin-left: 40px;">
-                                                            <br>
-                                                            <br>
-                                                            <div class="d-flex flex-row user-info"><img class="rounded-circle" src="{{child.user.profile.image.url}}" width="30" height="30">
-                                                                <a href="{% url 'myProfile' child.user.username %}" style="text-decoration: none;">
-                                                                    <div style="margin-left: 5px;" class="d-flex flex-column justify-content-start ml-2">
-                                                                        <span class="d-block font-weight-bold name">{{child.user.username}}</span><span class="date text-black-50"> {{comment.created}}</span>
-                                                                    </div>
-                                                                </a>
+                                                    <div id="inner-{{comment.id}}" >
+
+                                                        {% for child in comment.children %}
+                                                            <div class="bg-white p-2" style="margin-left: 40px;">
+                                                                <br>
+                                                                <br>
+                                                                <div class="d-flex flex-row user-info"><img class="rounded-circle" src="{{child.user.profile.image.url}}" width="30" height="30">
+                                                                    <a href="{% url 'myProfile' child.user.username %}" style="text-decoration: none;">
+                                                                        <div style="margin-left: 5px;" class="d-flex flex-column justify-content-start ml-2">
+                                                                            <span class="d-block font-weight-bold name">{{child.user.username}}</span><span class="date text-black-50"> {{child.created}}</span>
+                                                                        </div>
+                                                                    </a>
+                                                                </div>
+                                                                <div class="mt-2">
+                                                                    <p class="comment-text" style="margin-left: 20px;"> {{ child.body }}</p>
+                                                                    
+                                                                </div>
                                                             </div>
-                                                            <div class="mt-2">
-                                                                <p class="comment-text" style="margin-left: 20px;"> {{ child.body }}</p>
-                                                                {% if child.tags.all %}
-                                                                    {% for tag in child.tags.all %}
-                                                                        <p>{{tag.title}}</p>
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                                
-                                                            </div>
-                                                        </div>
-                                                    {% endfor %}
+                                                        {% endfor %}
+                                                    </div>
 
                                                     
 
                                                     <div class="d-none" id="{{comment.id}}" style="margin-left: 20px;">
-                                                        <form  enctype="multipart/form-data"  method="POST"  >
-                                                            {% csrf_token %}
+                                                        
                                                             <div class="bg-light p-2">
                                                                 
                                                                 <br>
                                                                 <div class="d-flex flex-row align-items-start">
                                                                     <img class="rounded-circle" src="{{request.user.profile.image.url}}" style="margin-right: 5px;" width="30" height="30">
-                                                                    {{commentForm.body}}
+                                                                    <input type="text" name="body" class="okay-{{comment.id}}" />
+
                                                                     <div class="d-flex flex-row align-items-start">
-                                                                        <button class="btn btn-outline-primary btn-block btn-sm shadow-none" style="margin-left: 5px;padding:3px" type="submit"> comment  </button>
+                                                                        <button onclick="replayComment({{comment.id}})" class="btn btn-outline-primary btn-block btn-sm shadow-none" style="margin-left: 5px;padding:3px" type="submit"> replay  </button>
                                                                     </div>
                                                                 </div>
                                                                 <br>
                                                                 
                                                             </div>
-                                                        </form>
+                                                       
                                                     </div>
                                                     
-                                             
+                                             {% endif %}
                                             {% endfor %}
+                                            
+                                            
                                             
                                             
                                         </div>

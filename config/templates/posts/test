@@ -1,34 +1,190 @@
-<div class="side-menu__suggestion">
+$.ajax({
+    type:"POST",
+    data:f,
+    contentType: false,
+    cache: false,
+    processData:false,
+    success:function(res){
+
+        let eachCommentProfile=`http://127.0.0.1:8000/${res[0].username}`
+        const img=res[0].profileImg
+        const body=res[0].body
+        const tobeAdded=$(`#special-${formId}`)
+
+        const newReplay=`
 
 
-    <button class="story story--has-story btn-sm">
-        <div class="story__avatar">
-            <div class="story__border">
-                <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-                    <circle r="31" cy="32" cx="32"/>
-                    <defs>
-                        <linearGradient y2="0" x2="1" y1="1" x1="0" id="--story-gradient">
-                            <stop offset="0" stop-color="#f09433"/>
-                            <stop offset="0.25" stop-color="#e6683c"/>
-                            <stop offset="0.5" stop-color="#dc2743"/>
-                            <stop offset="0.75" stop-color="#cc2366"/>
-                            <stop offset="1" stop-color="#bc1888"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
+        <div class="bg-white p-2" style="margin-left: 40px;">
+            <br>
+            <br>
+            <div class="d-flex flex-row user-info">
+                <img class="rounded-circle" src="${img}" width="30" height="30">
+                <a href="${eachCommentProfile}" style="text-decoration: none;">
+                    <div style="margin-left: 5px;" class="d-flex flex-column justify-content-start ml-2">
+                        <span class="d-block font-weight-bold name">${res[0].username}</span><span class="date text-black-50"> {{comment.created}}</span>
+                    </div>
+                </a>
             </div>
-            <div class="story__picture">
-                <img src="{{item.profile.image.url}}" alt="User Picture">
+            <div class="mt-2">
+                <p class="comment-text" style="margin-left: 20px;"> ${res[0].body}</p>
+                <br>
+                ${
+                    res[0].tags ? 
+                        res[0].tags.map(tag=>{
+                            `<a href="" >${tag.title}</a>`
+                        })
+                    :''
+                }
+                <br>
+                
             </div>
         </div>
-        <!-- <span class="story__user">usernick1</span> -->
-    </button>
+
+        `
+        tobeAdded.append(newReplay)
+    }
+})
 
 
-    <div class="side-menu__suggestion-info" style="padding: 25px;">
-        <a href="{% url 'myProfile' item.username %}">{{item.username}}</a>
-        <span>Followed by user1, user2 and 9 others</span>
-    </div>
 
 
-</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function aa(){
+    $("#comment-form").on("submit",function(e){
+        e.preventDefault()
+        const url="{% url 'addComment' item.id %}"
+        const f=new FormData(this)
+        const toAppendDiv=$("#to-add-comment-{{item.id}}")
+        console.log("THISSSSSIISIS",this[1].value)
+        const inp=this[1]
+
+        $.ajax({
+            type:"POST",
+            url:url,
+            data:f,
+            contentType: false,
+            cache: false,
+            processData:false,
+
+            success:function(res){
+                //console.log("Okayyyyyy onessss",res[0].comment)
+                
+                    
+                    if(res[0].is_parent){
+
+                        
+
+                            let eachCommentProfile=`http://127.0.0.1:8000/${res[0].username}`
+                            const img=res[0].profileImg
+                            const body=res[0].body
+                            
+                            const newComment=`
+
+                            <div class="bg-white p-2">
+                                <br>
+                                <br>
+                                <div class="d-flex flex-row user-info"><img class="rounded-circle" src="${img}" width="30" height="30">
+                                    <a href="${eachCommentProfile}" style="text-decoration: none;">
+                                        <div style="margin-left: 5px;" class="d-flex flex-column justify-content-start ml-2">
+                                            <span class="d-block font-weight-bold name">${res[0].username}</span><span class="date text-black-50"> ${res[0].created}</span>
+                                            
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="mt-2">
+                                    <p class="comment-text" style="margin-left: 10px;"> ${body}</p>
+                                    <br>
+                                    ${
+                                        res[0].tags ? 
+                                            res[0].tags.map(tag=>{
+                                                `<a href="" >${tag.title}</a>`
+                                            })
+                                        :''
+                                    }
+                                    <br>
+                                    <button class="btn btn" onclick="commentFormToggle('${res[0].id}')" >replay</button>
+
+                                    <button onclick="likeComment(${res[0].id})" id="comment-like-${res[0].id}" class="btn btn- btn-sm shadow-none" style="margin-left: 5px;padding:3px" type="submit">  
+                                        <i class="fa fa-heart" style="font-size: 12px; {% if comment in likedComment %} color:red; {% else %} color:black {% endif %} " id="comment-like-icon-${res[0].id}"></i>  
+                                    </button>
+
+                                </div>
+                            </div>
+
+                            <div class="d-none" id="${res[0].id}" style="margin-left: 20px;">
+                                
+                                    <div class="bg-light p-2">
+                                        
+                                        <br>
+                                        <div class="d-flex flex-row align-items-start">
+                                            <img class="rounded-circle" src="${img}" style="margin-right: 5px;" width="30" height="30">
+
+                                            <input type="text" name="body" class="okay-${res[0].id}" />
+
+                                            <div class="d-flex flex-row align-items-start">
+
+                                                <button onclick="replayComment(${res[0].id})"  class="btn btn-outline-primary btn-block btn-sm shadow-none" style="margin-left: 5px;padding:3px" type="submit"> replay  </button>
+                                                
+
+                                            </div>
+                                        </div>
+                                        <br>
+                                        
+                                    </div>
+                                
+                            </div>
+
+                            ${ res[0].childrens ? 
+
+                                    `<div id="special-${res[0].id}"  >
+
+                                    </div>`
+
+                                 : '' }
+
+                            `
+
+                        toAppendDiv.append(newComment)
+                        inp.value=""
+                        
+                        
+                    }
+            }
+
+
+
+        })
+    })
+ }
+ //aa()

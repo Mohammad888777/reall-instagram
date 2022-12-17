@@ -14,6 +14,7 @@ urlpatterns = [
     path('accounts/', include(tf_urls)),
     path('users/', include("accounts.urls")),
     path('comments/', include("comments.urls")),
+    path('notifications/', include("notifications.urls")),
 
 
 ]

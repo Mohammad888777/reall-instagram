@@ -6,4 +6,4 @@ class PostsConfig(AppConfig):
     name = 'posts'
     
     def ready(self) -> None:
-            import posts.signals
+        import posts.signals

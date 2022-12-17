@@ -53,15 +53,24 @@ class ProfileView(LoginNeed,View):
             user=profile.user
         ).order_by("-posted")
 
+        filtred_Followers=[]
+
         followers=None
         if profile.status=="private":
             followers=Follow.objects.select_related("follower","following").filter(
             following=profile.user,request_status="accepted"
             )
+            filtred_Followers.append(followers)
         elif profile.status=="public":
             followers=Follow.objects.select_related("follower","following").filter(
                 following=profile.user
                 )
+            filtred_Followers.append(followers)
+        
+        
+            
+        
+
 
         # followings=None
 
@@ -76,6 +85,8 @@ class ProfileView(LoginNeed,View):
             p=Profile.objects.get(user=i.following)
             all_pis.append(p)
         
+        filtred_following=[]
+
        
         fff=None
         for i in all_pis:
@@ -83,12 +94,14 @@ class ProfileView(LoginNeed,View):
                 fff=Follow.objects.select_related("follower","following").filter(
                     follower=profile.user,following=i.user,request_status="accepted"
                 )
+                filtred_following.append(fff)
             elif i.status=="public":
 
                 fff=Follow.objects.select_related("follower","following").filter(
                     follower=profile.user,following=i.user
                     )
-
+                filtred_following.append(fff)
+        print("FILTREDDDDD",len(filtred_Followers),filtred_Followers)
         
 
         followed=Follow.objects.select_related("follower","following").filter(
@@ -109,15 +122,17 @@ class ProfileView(LoginNeed,View):
             f=Follow.objects.select_related("follower","following").get(follower=self.request.user,following=profile.user)
             status_follow=f.request_status
 
-        print(status_follow)
-
+        # print(status_follow)
+        # print("FOLOOOOWINGGG",fff)
         
         contex={
 
             'profile':profile,
             'posts':posts,
             'followers':followers,
-            'followings':fff,
+            # 'followers_len':len(filtred_Followers),
+            'followings':followings,
+            # 'followings_len':len(filtred_following),
             'post_paginated':post_result,
             'followed':followed,
             'user_allowed':user_allowed,
