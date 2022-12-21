@@ -88,8 +88,11 @@ def commentReplay(request,post_id,comment_id):
 
             ]
 
+        if request.is_ajax():
+            print("Its AJAXXXXXXXXXXXXXXXX")
 
-        return JsonResponse(xx,safe=False)
+            return JsonResponse(xx,safe=False)
+        return redirect("postDetail",post.pk)
         # else:
         #     print("form Is not valid")
         #     return redirect("index")
@@ -179,3 +182,4 @@ def addCommentIndex(request,post_id):
             ]
 
         return JsonResponse(xx,safe=False)
+

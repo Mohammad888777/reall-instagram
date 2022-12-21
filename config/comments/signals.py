@@ -39,11 +39,6 @@ post_delete.connect(send_notification_comment_like,sender=CommentLike)
 
 
 def send_notification_comment(sender,instance,created,**kwargs):
-
-    commment_sender=instance.user
-    receviver=instance.post.user
-    
-    
     
     if instance.post.user == instance.user:
         type_number1=None

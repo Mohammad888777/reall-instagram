@@ -12,6 +12,10 @@ from django.contrib import messages
 from comments.models import Comment
 from comments.forms import CommentForm
 from django.db.models import Q,Count
+from django.views.generic import UpdateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .minxins import PostEditMixin
+from django.urls import reverse
 
 
 
@@ -282,3 +286,15 @@ def likesView(request,post_id):
 
 
 
+
+
+class EditPost(LoginRequiredMixin,PostEditMixin,UpdateView):
+
+    template_name: str="posts/editPost.html"
+    model=Post
+    fields=["picture","caption","tags"]
+    
+    def get_success_url(self) -> str:
+
+        return reverse("myProfile",kwargs={"username":self.request.user.username})
+    

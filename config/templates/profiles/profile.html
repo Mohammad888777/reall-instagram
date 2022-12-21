@@ -150,8 +150,13 @@
                                                 
 
                                     {% endif %}
+                                    
                                 </div>
-                            
+                                <a href="{% url 'make_thread' profile.user.username %}">
+                                    <button class="btn btn-outline-primary " style="font-size: 15px;padding:5px">message</button>
+                                </a>
+                                <br>
+                             
                         {% endif %}
                         <br>
                         
@@ -342,4 +347,6 @@
 
     {% endif %}
 
+
+    
 {% endblock content %}

@@ -6,8 +6,9 @@ from comments.models import Comment
 class Notification(models.Model):
     NOTIFICATION_TYPES = ((1, 'Like'), (2, 'Comment'), (3, 'Follow'),(4,"Direct"),(5,'replay_comment'),(6,"likeComment"))
 
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="notification_post", null=True)
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="notification_comment", null=True)
+    
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="notification_post", null=True,blank=True)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name="notification_comment", null=True,blank=True)
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notification_sender" )
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notification_receiver" )
     notification_types = models.IntegerField(choices=NOTIFICATION_TYPES, null=True, blank=True)

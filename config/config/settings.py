@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'notifications',
     'posts',
     'profiles',
+    'shares',
+    'stories',
+    'directs',
 
 
 

@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from accounts.models import User
 from django.contrib import messages
-
+from django.db.models import Q
 
 
 
@@ -258,7 +258,7 @@ def send_request(request,username):
                     return redirect(request.META.get("HTTP_REFERER"))
             
         else:
-            Follow.objects.create(
+            f=Follow.objects.create(
             follower=request.user,following=profile.user,request_status="requested"
             )
             profile.follwer_requested.add(f)
@@ -445,10 +445,76 @@ def change_password(request,username):
 
 
 
-
-
-
-class HandleRequestedFollower:
-    pass
-#   if account is private
  
+
+
+def acceptFollower(request,username):
+
+    profile=get_object_or_404(Profile.objects.select_related("user").prefetch_related("favourite","follwer_requested"),user=request.user)
+
+    user_want_to_follow=get_object_or_404(User.objects.select_related("profile").prefetch_related("post_set"),username=username)
+
+
+
+    f=Follow.objects.select_related("follower","following").get(
+        following=request.user,follower=user_want_to_follow,request_status="requested"
+    )
+
+    f.request_status="accepted"
+    f.save()
+
+    if not request.is_ajax():
+        return redirect("requested_followers",profile.user.username)
+    
+    return JsonResponse({
+        "accepted":True
+    })
+
+
+
+
+
+def rejectFollower(request,username):
+
+    profile=get_object_or_404(Profile.objects.select_related("user").prefetch_related("favourite","follwer_requested"),user=request.user)
+
+    user_want_to_follow=get_object_or_404(User.objects.select_related("profile").prefetch_related("post_set"),username=username)
+
+
+
+    f=Follow.objects.select_related("follower","following").get(
+        following=request.user,follower=user_want_to_follow,request_status="requested"
+    )
+
+    f.request_status="rejected"
+    f.save()
+
+    if not request.is_ajax():
+        return redirect("requested_followers",profile.user.username)
+    
+    return JsonResponse({
+        "accepted":True
+    })
+
+
+
+
+
+def searchUser(request):
+    profile("ASDASDASDASDASDASD")
+
+    q=request.GET.get("term")
+    query=Profile.objects.filter(Q(first_name__icontains=q)|Q(user__username__icontains=q))
+    z=[i.user.username for i in query]
+    
+    return JsonResponse(z,safe=False)
+
+
+
+
+
+def test(request):
+    contex={
+        'users':User.objects.all()
+    }
+    return render(request,"profiles/test.html",contex)

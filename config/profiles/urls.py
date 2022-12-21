@@ -2,7 +2,9 @@ from django.urls import path
 from . import views
 
 urlpatterns=[
-
+    
+    path("search/",views.searchUser,name="search"),
+    path("test/",views.test,name="test"),
     path("<str:username>/",views.ProfileView.as_view(),name="myProfile"),
     path("saved_posts/<str:username>/",views.saved_posts,name="saved_posts"),
     path("edit_profile/<str:username>/",views.UpdateProfile.as_view(),name="edit_profile"),
@@ -13,5 +15,7 @@ urlpatterns=[
     path("settings/<str:username>/",views.Settings.as_view(),name="settings"),
     path("change_password/<str:username>/",views.change_password,name="change_password"),
     path("follow/<str:username>/",views.follow,name="follow"),
+    path("accept/<str:username>/",views.acceptFollower,name="accept"),
+    path("reject/<str:username>/",views.rejectFollower,name="reject"),
 
 ]
